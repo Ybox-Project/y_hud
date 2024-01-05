@@ -167,7 +167,6 @@ function showMoney(isCash) {
 function moneyChange(amount, isCash, isNegative) {
     if (amount === undefined) return;
     showMoney(isCash)
-    console.log(amount, isCash, isNegative);
     document.getElementById(isCash && 'cash-change' || 'bank-change').style.display = 'block';
     if (isNegative) {
         document.getElementById(isCash && 'cash-change' || 'bank-change').classList.remove('positive-money');
@@ -177,7 +176,7 @@ function moneyChange(amount, isCash, isNegative) {
         document.getElementById(isCash && 'cash-change' || 'bank-change').classList.add('positive-money');
     }
 
-    document.getElementById(isCash && 'cash-change' || 'bank-change').innerHTML = amount;
+    document.getElementById(isCash && 'cash-change' || 'bank-change').innerHTML = amount.toLocaleString('us-US', { style: 'currency', maximumFractionDigits: 0, compactDisplay: "short", currency: 'USD' });
     setTimeout(() => {
         document.getElementById(isCash && 'cash-change' || 'bank-change').innerHTML = '';
         document.getElementById(isCash && 'cash-change' || 'bank-change').style.display = 'none';

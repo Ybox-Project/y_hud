@@ -49,14 +49,22 @@
     overflow: hidden;
 }
 
+.negative-money {
+    font-weight: 900;
+    color: #ff0000;
+}
+
 .negative-money::before {
     content: "- ";
-    color: #ff0000;
+}
+
+.positive-money {
+    font-weight: 900;
+    color: #01a01c;
 }
 
 .positive-money::before {
     content: "+ ";
-    color: #01a01c;
 }
 
 #cash-change, #bank-change {
