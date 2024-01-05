@@ -251,8 +251,8 @@ local function initHud()
             { type = 'progress', name = 'thirst', value = LocalPlayer.state.thirst or 0, option = { backgroundColor = LocalPlayer.state.thirst < 30 and '#881111ff' or false } },
             { type = 'progress', name = 'stress', value = LocalPlayer.state.stress or 0, option = { backgroundColor = LocalPlayer.state.stress > 75 and '#881111ff' or false } },
             { type = 'progress', name = 'voice', value = LocalPlayer.state.proximity.distance * 10 },
-            { type = 'balance', set = true, isCash = true, value = QBX.PlayerData.money.cash},
-            { type = 'balance', set = true, isCash = false, value = QBX.PlayerData.money.bank },
+            { type = 'balance', set = true, isCash = true, value = QBX.PlayerData?.money?.cash or 0},
+            { type = 'balance', set = true, isCash = false, value = QBX.PlayerData?.money?.bank or 0},
         }
     })
 end
@@ -515,7 +515,9 @@ RegisterNetEvent('qbx_hud:client:showHud', function ()
 end)
 
 RegisterNetEvent('qbx_hud:client:togglehud', function ()
+    print('displayBars', displayBars)
     if not displayBars then
+        print('inside togglehud event')
         togglehud()
         exports.qbx_core:Notify(Lang:t(("notify.hud_%s"):format(toggleHud and 'on' or 'off')))
     end
