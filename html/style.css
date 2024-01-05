@@ -54,9 +54,13 @@
     color: #ff0000;
 }
 
-#cash-change::before, #bank-change::before {
+.positive-money::before {
     content: "+ ";
     color: #01a01c;
+}
+
+#cash-change, #bank-change {
+    display: none;
 }
 
 #cash > *, #bank > * {
