@@ -520,9 +520,7 @@ RegisterNetEvent('qbx_hud:client:showHud', function ()
 end)
 
 RegisterNetEvent('qbx_hud:client:togglehud', function ()
-    print('displayBars', displayBars)
     if not displayBars then
-        print('inside togglehud event')
         togglehud()
         exports.qbx_core:Notify(Lang:t(("notify.hud_%s"):format(toggleHud and 'on' or 'off')))
     end
