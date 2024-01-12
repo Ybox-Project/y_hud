@@ -1,11 +1,12 @@
 local config = require("config.client")
 local stressConfig = config.stress
+local playerState = LocalPlayer.state
 
 -- Stress Gain
 CreateThread(function() -- Speeding
     while true do
-        if LocalPlayer.state.isLoggedIn then
-            if cache.vehicle and not LocalPlayer.state.harness and GetVehicleClass(cache.vehicle) ~= 8 then
+        if playerState.isLoggedIn then
+            if cache.vehicle and not playerState.harness and GetVehicleClass(cache.vehicle) ~= 8 then
                 local speed = GetEntitySpeed(cache.vehicle) * config.speedMultiplier
                 local stressSpeed = seatbeltOn and stressConfig.speedingMini or stressConfig.speedingUnbuckledMini
                 if speed >= stressSpeed then
@@ -17,37 +18,20 @@ CreateThread(function() -- Speeding
     end
 end)
 
-local function IsWhitelistedWeaponStress(weapon)
-    if weapon then
-        for _, v in pairs(config.whitelistedWeaponStress) do
-            if weapon == v then
-                return true
+local function armedLoop()
+    while cache.weapon do
+        if IsPedShooting(cache.ped) then
+            if math.random() < stressConfig.stressChance then
+                TriggerServerEvent('hud:server:GainStress', math.random(1, 3))
             end
         end
+        Wait(0)
     end
-    return false
 end
 
-local shootingSleep = 500
-CreateThread(function() -- Shooting
-    while true do
-        local isArmed = IsPedArmed(cache.ped, 7)
-        if LocalPlayer.state.isLoggedIn and isArmed then
-            local weapon = GetSelectedPedWeapon(cache.ped)
-            if weapon ~= `WEAPON_UNARMED` then
-                if IsPedShooting(cache.ped) and not IsWhitelistedWeaponStress(weapon) then
-                    if math.random() < stressConfig.stressChance then
-                        TriggerServerEvent('hud:server:GainStress', math.random(1, 3))
-                    end
-                end
-                shootingSleep = 0
-            else
-                shootingSleep = 1000
-            end
-        else
-            shootingSleep = 1000
-        end
-        Wait(shootingSleep)
+lib.onCache('weapon', function(weapon)
+    if weapon and not config.whitelistedWeaponStress[weapon] then
+        CreateThread(armedLoop)
     end
 end)
 
@@ -73,7 +57,7 @@ end
 CreateThread(function()
     while true do
         local effectInterval = 2500
-        if LocalPlayer.state.isLoggedIn then
+        if playerState.isLoggedIn then
             effectInterval = GetEffectInterval(stress)
             if stress >= 100 then
                 local BlurIntensity = GetBlurIntensity(stress)

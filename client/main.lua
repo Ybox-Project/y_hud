@@ -1,5 +1,6 @@
 local config = require 'config.client'
-stress = LocalPlayer.state.stress or 0
+local playerState = LocalPlayer.state
+stress = playerState.stress or 0
 local displayBars = false
 local toggleHud = true
 local toggleCinematic = false
@@ -66,6 +67,7 @@ CreateThread(function()
             end
             sleep, minimapShown = 500, true
         end
+        collectgarbage()
     end
 end)
 
@@ -140,7 +142,7 @@ local function vehiclehudloop()
             sleep = 1000
             if GetIsVehicleEngineRunning(cache.vehicle) and IsMinimapRendering() then
                 local _, highbeam, lowbeam = GetVehicleLightsState(cache.vehicle)
-                local nitroLevel = Entity(cache.vehicle).state?.nitro or 0
+                local nitroLevel = Entity(cache.vehicle).state.nitro or 0
                 SendNUIMessage({
                     update = true,
                     data = {
@@ -155,7 +157,7 @@ local function vehiclehudloop()
                         {
                             type = 'gauge',
                             name = 'fuel',
-                            value = Entity(cache.vehicle).state.fuel or 100
+                            value = GetVehicleFuelLevel(cache.vehicle) or 100
                         },
                         {
                             type = 'gauge',
@@ -170,7 +172,7 @@ local function vehiclehudloop()
                         }
                     }
                 })
-                if Entity(cache.vehicle)?.state?.fuel and config.lowFuelAlert and Entity(cache.vehicle)?.state?.fuel < config.lowFuelAlert then
+                if config.lowFuelAlert and GetVehicleFuelLevel(cache.vehicle) < config.lowFuelAlert then
                     if alert > 0 then
                         alert = alert - 1
                     else
@@ -196,7 +198,7 @@ local function initVehicleHud()
     }
 
     if isInVehicle then
-        local nitroLevel = Entity(cache.vehicle).state?.nitro or 0
+        local nitroLevel = Entity(cache.vehicle).state.nitro or 0
         data = {
             {
                 type = 'gauge',
@@ -222,8 +224,8 @@ lib.onCache('vehicle', function(value)
     isInVehicle = value
     initVehicleHud()
     if not value then
-        LocalPlayer.state:set('seatbelt', false, true)
-        LocalPlayer.state:set('harness', false, true)
+        playerState:set('seatbelt', false, true)
+        playerState:set('harness', false, true)
         SendNUIMessage({
             update = true,
             data = {
@@ -241,18 +243,18 @@ end)
 
 local function initHud()
     if config.minimapAlwaysOn then
-        DisplayRadar(LocalPlayer.state.isLoggedIn)
+        DisplayRadar(playerState.isLoggedIn)
     end
     SendNUIMessage({
         update = true,
         data = {
-            { type = 'showHud', value = LocalPlayer.state.isLoggedIn },
-            { type = 'progress', name = 'hunger', value = LocalPlayer.state.hunger or 0, option = { backgroundColor = LocalPlayer.state.hunger < 30 and '#881111ff' or false } },
-            { type = 'progress', name = 'thirst', value = LocalPlayer.state.thirst or 0, option = { backgroundColor = LocalPlayer.state.thirst < 30 and '#881111ff' or false } },
-            { type = 'progress', name = 'stress', value = LocalPlayer.state.stress or 0, option = { backgroundColor = LocalPlayer.state.stress > 75 and '#881111ff' or false } },
-            { type = 'progress', name = 'voice', value = LocalPlayer.state.proximity.distance * 10 },
-            { type = 'balance', set = true, isCash = true, value = QBX.PlayerData?.money?.cash or 0},
-            { type = 'balance', set = true, isCash = false, value = QBX.PlayerData?.money?.bank or 0},
+            { type = 'showHud', value = playerState.isLoggedIn },
+            { type = 'progress', name = 'hunger', value = playerState.hunger or 0, option = { backgroundColor = playerState.hunger < 30 and '#881111ff' or false } },
+            { type = 'progress', name = 'thirst', value = playerState.thirst or 0, option = { backgroundColor = playerState.thirst < 30 and '#881111ff' or false } },
+            { type = 'progress', name = 'stress', value = playerState.stress or 0, option = { backgroundColor = playerState.stress > 75 and '#881111ff' or false } },
+            { type = 'progress', name = 'voice', value = playerState.proximity.distance * 10 },
+            { type = 'balance', set = true, isCash = true, value = QBX.PlayerData?.money?.cash},
+            { type = 'balance', set = true, isCash = false, value = QBX.PlayerData?.money?.bank },
         }
     })
 end
@@ -289,39 +291,52 @@ AddEventHandler('onResourceStart', function(resource)
     end
 end)
 
---- Set the voice level and/or talking status
----@param value number | nil
----@param talking boolean | nil
-local function setVoice(value, talking)
-    local data = {
-        {
-            type = 'progress',
-            name = 'voice',
-            value = value and value * 10 or nil,
-        }
-    }
-    data[1].option = type(talking) == "boolean" and {
-        backgroundColor = (LocalPlayer.state.talkingradio and '#5A93FF') or (talking and '#FF935A') or false
-    } or nil
-
+--- Set the talking status
+---@param talking boolean
+local function setTalking(talking)
     SendNUIMessage({
         update = true,
-        type = 'progress',
-        data = data
+        data = {
+            {
+                type = 'progress',
+                name = 'voice',
+                option = {
+                    backgroundColor = (playerState.talkingradio and '#5A93FF') or (talking and '#FF935A') or false
+                }
+            }
+        }
     })
 end
 
-local proximity, isTalking = 10, false
+require '@pma-voice.shared'
+local proximityLevels = Cfg.voiceModes
+local highestLevel
+for i = 1, #proximityLevels do
+    if not highestLevel or proximityLevels[i][1] > highestLevel then
+        highestLevel = proximityLevels[i][1]
+    end
+end
+
+AddStateBagChangeHandler('proximity', ('player:%s'):format(cache.serverId), function(_, _, value)
+    SendNUIMessage({
+        update = true,
+        data = {
+            {
+                type = 'progress',
+                name = 'voice',
+                value = value.distance / highestLevel * 100
+            }
+        }
+    })
+end)
+
+local isTalking = false
 CreateThread(function()
     while true do
         local talking = MumbleIsPlayerTalking(cache.playerId)
-        if proximity ~= LocalPlayer.state.proximity.distance then
-            proximity = LocalPlayer.state.proximity.distance
-            setVoice(LocalPlayer.state.proximity.distance, nil)
-        end
         if isTalking ~= talking then
             isTalking = talking
-            setVoice(nil, talking)
+            setTalking(talking)
         end
         Wait(125)
     end
@@ -434,7 +449,7 @@ end)
 
 CreateThread(function()
     -- Disable the minimap on login
-    if not LocalPlayer.state.isLoggedIn then
+    if not playerState.isLoggedIn then
         DisplayRadar(false)
     end
 
