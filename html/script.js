@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const dataItem = Data[i];
                 switch (dataItem.type) {
                     case 'compass':
-                        setCompass(dataItem.show, dataItem.heading, dataItem.street, dataItem.zone);
+                        setCompass(dataItem.show, dataItem.heading, dataItem.street, dataItem.street2);
                         break;
                     case 'vehiclehud':
                         document.getElementsByClassName('vehicle-hud')[0].style.display = dataItem.show ? 'flex' : 'none';
@@ -123,13 +123,10 @@ function setSpeedProgress(percentage) {
 }
 
 function setCompass(show, heading, street, zone) {
-    if (show !== undefined) {
-        document.getElementsByClassName("compass-hud")[0].style.display = show && 'flex' || 'none';
-    }
-    if (heading === undefined || street === undefined || zone === undefined) return;
-    document.getElementById('azimuth').innerHTML = heading;
-    document.getElementById('street').innerHTML = street;
-    document.getElementById('zone').innerHTML = zone;
+    if (show) document.getElementsByClassName("compass-hud")[0].style.display = show && 'flex' || 'none';
+    if (heading) document.getElementById('azimuth').innerHTML = heading;
+    if (street) document.getElementById('street').innerHTML = street;
+    if (zone) document.getElementById('zone').innerHTML = zone;
 }
 
 function setDashboardLight(data) {

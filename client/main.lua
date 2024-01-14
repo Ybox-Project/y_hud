@@ -15,10 +15,10 @@ local directions = {
     W = 90,
     NW = 45,
 }
-local currentHeading, currentStreet, currentStreet2
 
 CreateThread(function()
-    local sleep, minimapShown = 500, false
+    local currentHeading, currentStreet, currentStreet2
+    local sleep, minimapShown
     while true do
         Wait(sleep)
         if not IsMinimapRendering() then
@@ -33,41 +33,38 @@ CreateThread(function()
                 }
             })
         else
-            local coords = GetEntityCoords(cache.ped);
-            local zone = GetNameOfZone(coords.x, coords.y, coords.z);
+            local coords = GetEntityCoords(cache.ped)
             local var1, var2 = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
-            local hash1, hash2 = GetStreetNameFromHashKey(var1), GetStreetNameFromHashKey(var2);
-            local street2 = ("%s%s"):format(hash2 ~= '' and hash2 .. ', ' or '', GetLabelText(zone));
-            local heading = GetEntityHeading(cache.ped);
+            local street, hash2 = GetStreetNameFromHashKey(var1), GetStreetNameFromHashKey(var2)
+            local street2 = ("%s%s"):format(hash2 ~= '' and hash2 .. ', ' or '', GetLabelText(GetNameOfZone(coords.x, coords.y, coords.z)))
+            local heading = GetEntityHeading(cache.ped) % 360
             local convertedHeading = 'N'
 
-            if heading < 0 or heading > 22.5 then
-                for k, v in pairs(directions) do
-                    if heading >= v - 22.5 and heading <= v + 22.5 then
-                        convertedHeading = k
-                        break
-                    end
+            for k, v in pairs(directions) do
+                if heading >= v - 22.5 and heading <= v + 22.5 then
+                    convertedHeading = k
+                    break
                 end
             end
 
-            if not minimapShown or currentHeading ~= convertedHeading or currentStreet ~= hash1 or currentStreet2 ~= street2 then
-                currentHeading, currentStreet, currentStreet2 = convertedHeading, hash1, street2
+            if currentHeading ~= convertedHeading or currentStreet ~= street or currentStreet2 ~= street2 then
                 SendNUIMessage({
                     update = true,
                     data = {
                         {
                             type = 'compass',
-                            show = true,
-                            heading = convertedHeading,
-                            street = hash1,
-                            zone = street2
+                            show = not minimapShown or nil,
+                            heading = currentHeading ~= convertedHeading and convertedHeading or nil,
+                            street = currentStreet ~= street and street or nil,
+                            street2 = currentStreet2 ~= street2 and street2 or nil,
                         }
                     }
                 })
+                currentHeading, currentStreet, currentStreet2 = convertedHeading, street, street2
+                minimapShown = true
             end
-            sleep, minimapShown = 500, true
+            sleep = 500
         end
-        collectgarbage()
     end
 end)
 
