@@ -84,52 +84,46 @@ local function vehiclehudloop()
     end
 
     CreateThread(function()
-        local sleep
         while isInVehicle do
-            sleep = 1000
-            if IsMinimapRendering() then
-                local HasTrailer, Trailer = GetVehicleTrailerVehicle(cache.vehicle)
-                if IsControlJustPressed(1, 174) then     -- <- is pressed
-                    indl = not indl
-                    SetVehicleIndicatorLights(cache.vehicle, 1, indl)
-                    if HasTrailer then
-                        SetVehicleIndicatorLights(Trailer, 1, indl)
-                    end
+            local HasTrailer, Trailer = GetVehicleTrailerVehicle(cache.vehicle)
+            if IsControlJustPressed(1, 174) then     -- <- is pressed
+                indl = not indl
+                SetVehicleIndicatorLights(cache.vehicle, 1, indl)
+                if HasTrailer then
+                    SetVehicleIndicatorLights(Trailer, 1, indl)
                 end
-                if IsControlJustPressed(1, 175) then     -- -> is pressed
-                    indr = not indr
-                    SetVehicleIndicatorLights(cache.vehicle, 0, indr)
-                    if HasTrailer then
-                        SetVehicleIndicatorLights(Trailer, 0, indr)
-                    end
-                end
-                if IsControlJustPressed(1, 173) then     -- down is pressed
-                    indl = not indl
-                    indr = not indr
-                    SetVehicleIndicatorLights(cache.vehicle, 1, indl)
-                    SetVehicleIndicatorLights(cache.vehicle, 0, indr)
-                    if HasTrailer then
-                        SetVehicleIndicatorLights(Trailer, 1, indl)
-                        SetVehicleIndicatorLights(Trailer, 0, indr)
-                    end
-                end
-
-                if currentindicatorL ~= indl or currentindicatorR ~= indr then
-                    currentindicatorL, currentindicatorR = indl, indr
-                    SendNUIMessage({
-                        update = true,
-                        data = {
-                            {
-                                type = 'dashboardlights',
-                                indicatorL = indl,
-                                indicatorR = indr,
-                            }
-                        }
-                    })
-                end
-                sleep = 0
             end
-            Wait(sleep)
+            if IsControlJustPressed(1, 175) then     -- -> is pressed
+                indr = not indr
+                SetVehicleIndicatorLights(cache.vehicle, 0, indr)
+                if HasTrailer then
+                    SetVehicleIndicatorLights(Trailer, 0, indr)
+                end
+            end
+            if IsControlJustPressed(1, 173) then     -- down is pressed
+                indl = not indl
+                indr = not indr
+                SetVehicleIndicatorLights(cache.vehicle, 1, indl)
+                SetVehicleIndicatorLights(cache.vehicle, 0, indr)
+                if HasTrailer then
+                    SetVehicleIndicatorLights(Trailer, 1, indl)
+                    SetVehicleIndicatorLights(Trailer, 0, indr)
+                end
+            end
+            if IsMinimapRendering() and (currentindicatorL ~= indl or currentindicatorR ~= indr) then
+                currentindicatorL, currentindicatorR = indl, indr
+                SendNUIMessage({
+                    update = true,
+                    data = {
+                        {
+                            type = 'dashboardlights',
+                            indicatorL = indl,
+                            indicatorR = indr,
+                        }
+                    }
+                })
+            end
+            Wait(0)
         end
     end)
 
@@ -175,7 +169,11 @@ local function vehiclehudloop()
                         alert = alert - 1
                     else
                         alert = 1500
-                        PlaySoundFrontend(-1, "CONFIRM_BEEP", "HUD_MINI_GAME_SOUNDSET", true)
+                        qbx.playAudio({
+                            audioName = "CONFIRM_BEEP",
+                            audioRef = 'HUD_MINI_GAME_SOUNDSET',
+                            source = cache.vehicle
+                        })
                         exports.qbx_core:Notify(Lang:t("notify.low_fuel"), "error")
                     end
                 end
@@ -501,12 +499,12 @@ local function toggleCinematicMode()
     togglehud()
 end
 
-RegisterNetEvent('qbx_hud:client:toggleCinematicMode', function ()
+RegisterNetEvent('qbx_hud:client:toggleCinematicMode', function()
     toggleCinematicMode()
     exports.qbx_core:Notify(Lang:t(("notify.cinematic_%s"):format(toggleCinematic and 'on' or 'off')))
 end)
 
-RegisterNetEvent('qbx_hud:client:hideHud', function ()
+RegisterNetEvent('qbx_hud:client:hideHud', function()
     SendNUIMessage({
         update = true,
         data = {
@@ -518,7 +516,7 @@ RegisterNetEvent('qbx_hud:client:hideHud', function ()
     })
 end)
 
-RegisterNetEvent('qbx_hud:client:showHud', function ()
+RegisterNetEvent('qbx_hud:client:showHud', function()
     if not toggleCinematic and toggleHud then
         SendNUIMessage({
             update = true,
@@ -532,7 +530,7 @@ RegisterNetEvent('qbx_hud:client:showHud', function ()
     end
 end)
 
-RegisterNetEvent('qbx_hud:client:togglehud', function ()
+RegisterNetEvent('qbx_hud:client:togglehud', function()
     if not displayBars then
         togglehud()
         exports.qbx_core:Notify(Lang:t(("notify.hud_%s"):format(toggleHud and 'on' or 'off')))
