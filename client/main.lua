@@ -64,6 +64,7 @@ CreateThread(function()
                 minimapShown = true
             end
             sleep = 500
+            collectgarbage()
         end
     end
 end)
@@ -245,9 +246,9 @@ local function initHud()
         update = true,
         data = {
             { type = 'showHud', value = playerState.isLoggedIn },
-            { type = 'progress', name = 'hunger', value = playerState.hunger or 0, option = { backgroundColor = playerState.hunger < 30 and '#881111ff' or false } },
-            { type = 'progress', name = 'thirst', value = playerState.thirst or 0, option = { backgroundColor = playerState.thirst < 30 and '#881111ff' or false } },
-            { type = 'progress', name = 'stress', value = playerState.stress or 0, option = { backgroundColor = playerState.stress > 75 and '#881111ff' or false } },
+            { type = 'progress', name = 'hunger', value = playerState.hunger or 0, option = { backgroundColor = playerState.hunger and playerState.hunger < 30 and '#881111ff' or false } },
+            { type = 'progress', name = 'thirst', value = playerState.thirst or 0, option = { backgroundColor = playerState.thirst and playerState.thirst < 30 and '#881111ff' or false } },
+            { type = 'progress', name = 'stress', value = playerState.stress or 0, option = { backgroundColor = playerState.stress and playerState.stress > 75 and '#881111ff' or false } },
             { type = 'progress', name = 'voice', value = playerState.proximity.distance * 10 },
             { type = 'balance', set = true, isCash = true, value = QBX.PlayerData?.money?.cash},
             { type = 'balance', set = true, isCash = false, value = QBX.PlayerData?.money?.bank },
@@ -297,7 +298,7 @@ local function setTalking(talking)
                 type = 'progress',
                 name = 'voice',
                 option = {
-                    backgroundColor = (playerState.talkingradio and '#5A93FF') or (talking and '#FF935A') or false
+                    backgroundColor = (playerState.radioActive and '#5A93FF') or (talking and '#FF935A') or false
                 }
             }
         }
@@ -305,7 +306,7 @@ local function setTalking(talking)
 end
 
 require '@pma-voice.shared'
-local proximityLevels = Cfg.voiceModes
+local proximityLevels = Cfg.voiceModes or {}
 local highestLevel
 for i = 1, #proximityLevels do
     if not highestLevel or proximityLevels[i][1] > highestLevel then
