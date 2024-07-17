@@ -194,8 +194,8 @@ i {
 }
 
 #progress-speed {
-    stroke-dasharray: 219.911486 219.911486;
-    stroke-dashoffset: 219.911486;
+    stroke-dasharray: 0 219.911486;
+    stroke-dashoffset: 131.9468914507713;
 }
 
 #progress-fuel {

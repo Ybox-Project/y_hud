@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         setSpeed(dataItem.speed);
                         break;
                     case 'speedmax':
-                        maxSpeedCounter = dataItem.speed;
+                        maxSpeedCounter = dataItem.speed * 1.2; // 20% margin just in case / for style (feels weird if it's at the limit? maybe just a personal thing)
                         break;
                     case 'gauge':
                         setGauge(dataItem.value, dataItem.name, dataItem.show);
@@ -80,8 +80,8 @@ function setSpeed(speed) {
     speed = Math.round(speed);
     document.getElementById('speed').innerHTML = speed;
 
-    if (speed > maxSpeedCounter) speed = maxSpeedCounter; // Can definitely happen with that random value returned by the native
-    setSpeedProgress(speed/maxSpeedCounter*100);
+    if (speed > maxSpeedCounter) speed = maxSpeedCounter; // Can definitely happen since the fInitialDriveMaxFlatVel is not a hard limit
+    setSpeedProgress(speed/maxSpeedCounter);
 }
 
 function setGauge(percentage, name, show) {
@@ -89,7 +89,7 @@ function setGauge(percentage, name, show) {
     let gauge = document.getElementById(name);
     if (gauge === undefined) return;
     if (show !== undefined) {
-        document.getElementById(name).style.opacity = show ? 1 : 0;
+        document.getElementById(name).style.display = show ? 'block' : 'none';
     }
     if (percentage > 100) percentage = 100;
     let circle = document.getElementById('progress-' + name);
@@ -97,7 +97,7 @@ function setGauge(percentage, name, show) {
     let circumference = circle.r.baseVal.value * 2 * Math.PI;
     let offset = circumference - (percentage / 100 * 0.7) * circumference;
 
-    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDasharray = [circumference, circumference];
     circle.style.strokeDashoffset = offset;
 
     if (name === 'fuel') {
@@ -105,17 +105,18 @@ function setGauge(percentage, name, show) {
     }
 }
 
-/* thanks bing AI */
-function setSpeedProgress(percentage) {
-    if (percentage === undefined) return;
-    if (percentage > 100) percentage = 100;
+function setSpeedProgress(speedometerFraction) {
+    if (speedometerFraction === undefined) return;
+    if (speedometerFraction > 100) speedometerFraction = 100;
     let circle = document.getElementById('progress-speed');
     if (circle === undefined) return;
     let circumference = circle.r.baseVal.value * 2 * Math.PI;
-    let offset = circumference - (percentage / 100 * 0.7) * circumference;
+    //let offset = circumference - (speedometerFraction / 100 * 0.7) * circumference;
+    //
+    let strokeDasharray = ((250 / 360) * speedometerFraction) * circumference;
 
-    circle.style.strokeDasharray = `${circumference} ${circumference}`;
-    circle.style.strokeDashoffset = offset;
+    circle.style.strokeDasharray = [strokeDasharray, circumference - strokeDasharray];
+    //circle.style.strokeDashoffset = offset;
 }
 
 function setCompass(show, heading, street, zone) {

@@ -98,16 +98,16 @@
             <div class="speedometer">
                 <svg width="75" height="75">
                     <circle class="gauge-background" cx="37.5" cy="37.5" r="35" stroke="white" opacity="0.4"
-                        stroke-width="4" fill="none" stroke-dasharray="219.911486 219.911486" stroke-dashoffset="65.9"
-                        transform="rotate(145 37.5 37.5)" />
+                    stroke-width="4" fill="none"
+                    stroke-dasharray="152.71630954950382,67.19517620178169" stroke-dashoffset="131.9468914507713" />
                     <circle id="progress-speed" cx="37.5" cy="37.5" r="35" stroke="url('#speed-gradient')"
-                        stroke-width="3" fill="none" transform="rotate(145 37.5 37.5)" />
+                        stroke-width="3" fill="none" />
                     <text id="speed">0</text>
                     <text id="speed-unit">km/h</text>
                     <defs>
-                        <linearGradient id="speed-gradient" gradientTransform="rotate(30)">
-                            <stop offset="0%" stop-color="#FF0245" />
+                        <linearGradient id="speed-gradient">
                             <stop offset="50%" stop-color="#BBFFFE" />
+                            <stop offset="100%" stop-color="#FF0245" />
                         </linearGradient>
                     </defs>
                 </svg>
