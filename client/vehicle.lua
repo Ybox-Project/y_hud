@@ -12,6 +12,18 @@ local setVehicleIndicatorLights = SetVehicleIndicatorLights
 local sendNUIMessage = SendNUIMessage
 local SPEED_MULTIPLIER = config.useMPH and 2.236936 or 3.6
 
+local function playLowFuelAlert()
+    exports.qbx_core:Notify(locale("notify.low_fuel"), "error")
+    for _ = 1, 5 do
+        qbx.playAudio({
+            audioName = "CONFIRM_BEEP",
+            audioRef = 'HUD_MINI_GAME_SOUNDSET',
+            source = cache.vehicle
+        })
+        Wait(500)
+    end
+end
+
 local function vehiclehudloop()
     local currentindicators = getVehicleIndicatorLights(cache.vehicle)
     local indl = currentindicators == 1 or currentindicators == 3
@@ -66,9 +78,9 @@ local function vehiclehudloop()
     end)
 
     CreateThread(function()
-        local alert = 0
         local sleep
         local showingHud = true
+        local lastAlertTime
         while cache.vehicle do
             local data
             local engineIsRunning = getIsVehicleEngineRunning(cache.vehicle)
@@ -108,18 +120,10 @@ local function vehiclehudloop()
                 }
 
 
-                -- not ideal, the 1500 doesn't actually equal 150 seconds because of framerate
-                if config.lowFuelAlert and getVehicleFuelLevel(cache.vehicle) < config.lowFuelAlert then
-                    if alert > 0 then
-                        alert -= 1
-                    else
-                        alert = 1500
-                        qbx.playAudio({
-                            audioName = "CONFIRM_BEEP",
-                            audioRef = 'HUD_MINI_GAME_SOUNDSET',
-                            source = cache.vehicle
-                        })
-                        exports.qbx_core:Notify(locale("notify.low_fuel"), "error")
+                if GetVehicleClass(cache.vehicle) ~= 13 and config.lowFuelAlert and getVehicleFuelLevel(cache.vehicle) < config.lowFuelAlert then
+                    if not lastAlertTime or GetGameTimer() - lastAlertTime > 1000 * config.lowFuelAlertInterval then
+                        lastAlertTime = GetGameTimer()
+                        playLowFuelAlert()
                     end
                 end
                 sleep = 100
