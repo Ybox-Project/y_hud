@@ -160,7 +160,8 @@ local function initVehicleHud()
             },
             {
                 type = 'speedmax',
-                speed = (GetVehicleEstimatedMaxSpeed(cache.vehicle) * SPEED_MULTIPLIER) * 1.75
+                speed = ((GetVehicleEstimatedMaxSpeed(cache.vehicle) * 3.6) -- should result a value ~ equal to fInitialDriveMaxFlatVel
+                * (SPEED_MULTIPLIER == 3.6 and 1.32 or 0.82)) -- transform to real speed according to online sources (multiply by 1.32 for km/h and 0.82 for mph)
             }
         }
         vehiclehudloop()
