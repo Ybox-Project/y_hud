@@ -7,7 +7,7 @@ local SPEED_MULTIPLIER = config.useMPH and 2.236936 or 3.6
 CreateThread(function() -- Speeding
     while true do
         if PlayerState.isLoggedIn then
-            if cache.vehicle and not PlayerState.harness and GetVehicleClass(cache.vehicle) ~= 8 then
+            if cache.vehicle and not PlayerState.harness and GetVehicleClass(cache.vehicle) ~= 8 and GetVehicleClass(cache.vehicle) ~= 16 and GetVehicleClass(cache.vehicle) ~= 15 then
                 local speed = GetEntitySpeed(cache.vehicle) * SPEED_MULTIPLIER
                 local stressSpeed = PlayerState.seatbelt and stressConfig.speedingMini or stressConfig.speedingUnbuckledMini
                 if speed >= stressSpeed then
@@ -90,9 +90,9 @@ CreateThread(function()
                 end
             elseif Stress >= stressConfig.stressBlurMini then
                 local BlurIntensity = GetBlurIntensity(Stress)
-                TriggerScreenblurFadeIn(1000.0)
+                TriggerScreenblurFadeIn(500.0)
                 Wait(BlurIntensity)
-                TriggerScreenblurFadeOut(1000.0)
+                TriggerScreenblurFadeOut(500.0)
             end
         end
         Wait(effectInterval)

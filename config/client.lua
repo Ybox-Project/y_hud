@@ -1,5 +1,6 @@
 return {
     useMPH = false,
+    -- These weapons will not increase stress
     whitelistedWeaponStress = {
         [`weapon_unarmed`] = true,
         [`weapon_flashlight`] = true,
@@ -10,12 +11,19 @@ return {
         [`weapon_ball`] = true,
         [`weapon_snowball`] = true,
     },
+    -- Height of the bars
     cinematicHeight = 0.15,
+    -- Threshold for the low fuel alert
     lowFuelAlert = 15,
+    -- in seconds
+    lowFuelAlertInterval = 60,
     minimapAlwaysOn = true,
     stress = {
+        -- Minimum speed to trigger stress when buckled
         speedingMini = 180,
+        -- When unbuckled
         speedingUnbuckledMini = 75,
+        -- Threshold where your vision is randomly blurred
         stressBlurMini = 40,
         stressChance = 0.05,
         speedingStress = {
