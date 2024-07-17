@@ -10,6 +10,7 @@ local isMinimapRendering = IsMinimapRendering
 local isControlJustPressed = IsControlJustPressed
 local setVehicleIndicatorLights = SetVehicleIndicatorLights
 local sendNUIMessage = SendNUIMessage
+local GetVehicleClass = GetVehicleClass
 local SPEED_MULTIPLIER = config.useMPH and 2.236936 or 3.6
 
 local function playLowFuelAlert()
