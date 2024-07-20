@@ -243,7 +243,7 @@ AddStateBagChangeHandler('harness', ('player:%s'):format(cache.serverId), functi
         data = {
             {
                 type = 'seatbelt',
-                value = value or seatbeltOn,
+                value = value or PlayerState.seatbelt,
                 harness = value,
             }
         }
