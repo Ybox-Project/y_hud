@@ -10,7 +10,9 @@ local isMinimapRendering = IsMinimapRendering
 local isControlJustPressed = IsControlJustPressed
 local setVehicleIndicatorLights = SetVehicleIndicatorLights
 local sendNUIMessage = SendNUIMessage
-local GetVehicleClass = GetVehicleClass
+local doesVehicleUseFuel = DoesVehicleUseFuel
+local getVehicleEstimatedMaxSpeed = GetVehicleEstimatedMaxSpeed
+local getGameTimer = GetGameTimer
 local SPEED_MULTIPLIER = config.useMPH and 2.236936 or 3.6
 
 local function playLowFuelAlert()
@@ -121,9 +123,9 @@ local function vehiclehudloop()
                 }
 
 
-                if GetVehicleClass(cache.vehicle) ~= 13 and config.lowFuelAlert and getVehicleFuelLevel(cache.vehicle) < config.lowFuelAlert then
-                    if not lastAlertTime or GetGameTimer() - lastAlertTime > 1000 * config.lowFuelAlertInterval then
-                        lastAlertTime = GetGameTimer()
+                if doesVehicleUseFuel(cache.vehicle) and config.lowFuelAlert and getVehicleFuelLevel(cache.vehicle) < config.lowFuelAlert then
+                    if not lastAlertTime or getGameTimer() - lastAlertTime > 1000 * config.lowFuelAlertInterval then
+                        lastAlertTime = getGameTimer()
                         playLowFuelAlert()
                     end
                 end
@@ -159,8 +161,14 @@ local function initVehicleHud()
                 show = nitroLevel > 0
             },
             {
+                type = 'gauge',
+                name = 'fuel',
+                value = getVehicleFuelLevel(cache.vehicle) or 0,
+                show = doesVehicleUseFuel(cache.vehicle) or getVehicleFuelLevel(cache.vehicle) > 0
+            },
+            {
                 type = 'speedmax',
-                speed = ((GetVehicleEstimatedMaxSpeed(cache.vehicle) * 3.6) -- should result a value ~ equal to fInitialDriveMaxFlatVel
+                speed = ((getVehicleEstimatedMaxSpeed(cache.vehicle) * 3.6) -- should result a value ~ equal to fInitialDriveMaxFlatVel
                 * (SPEED_MULTIPLIER == 3.6 and 1.32 or 0.82)) -- transform to real speed according to online sources (multiply by 1.32 for km/h and 0.82 for mph)
             }
         }
