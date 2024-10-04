@@ -1,8 +1,8 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'qbx_hud'
-repository 'https://github.com/Qbox-project/qbx_hud'
+description 'y_hud'
+repository 'https://github.com/Ybox-Project/y_hud'
 version '1.0.0'
 
 ox_lib 'locale'
