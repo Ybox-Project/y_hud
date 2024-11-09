@@ -46,13 +46,15 @@ end)
 CreateThread(function()
     SetTimeout(250, initHud)
 
-    -- Disable the minimap on login
+    -- Disable the minimap in character selection
     if not PlayerState.isLoggedIn then
         DisplayRadar(false)
     end
 
     Wait(500)
+    SetMinimapComponent(15, true, 0)
     SetRadarBigmapEnabled(false, false)
+    FlashMinimapDisplay()
     SetRadarZoom(200)
 end)
 
