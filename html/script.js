@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         maxSpeedCounter = dataItem.speed * 1.2; // 20% margin just in case / for style (feels weird if it's at the limit? maybe just a personal thing)
                         break;
                     case 'gauge':
+                        if (dataItem.name === 'purge') {
+                            console.log(dataItem.value);
+                            setGaugeProgress(dataItem.value, dataItem.name);
+                        }
                         setGauge(dataItem.value, dataItem.name, dataItem.show);
                         break;
                     case 'dashboardlights':
@@ -84,16 +88,9 @@ function setSpeed(speed) {
     setSpeedProgress(speed/maxSpeedCounter);
 }
 
-function setGauge(percentage, name, show) {
-    if (percentage === undefined) return;
-    let gauge = document.getElementById(name);
-    if (gauge === undefined) return;
-    if (show !== undefined) {
-        document.getElementById(name).style.display = show ? 'block' : 'none';
-    }
-    if (percentage > 100) percentage = 100;
+function setGaugeProgress(percentage, name) {
     let circle = document.getElementById('progress-' + name);
-    if (circle === undefined) return;
+    if (!circle) return;
     let circumference = circle.r.baseVal.value * 2 * Math.PI;
     let offset = circumference - (percentage / 100 * 0.7) * circumference;
 
@@ -103,6 +100,18 @@ function setGauge(percentage, name, show) {
     if (name === 'fuel') {
         document.getElementById('progress-fuel').style.stroke = percentage > 30 ? '#ffffff' : percentage > 15 ? '#f39c12' : '#a40000';
     }
+}
+
+function setGauge(percentage, name, show) {
+    if (percentage === undefined) return;
+    let gauge = document.getElementById(name);
+    if (gauge === undefined) return;
+    if (show !== undefined) {
+        document.getElementById(name).style.display = show ? 'block' : 'none';
+    }
+    percentage = Math.min(100, Math.max(0, percentage));
+
+    setGaugeProgress(percentage, name);
 }
 
 function setSpeedProgress(speedometerFraction) {

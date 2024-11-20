@@ -18,6 +18,8 @@ Supports [y_nitro](https://github.com/Ybox-Project/y_nitro).
     - Fuel (with low fuel alerts)
     - Seatbelt (Green) & Harness (Blue)
     - Nitro if using y_nitro OR other compatible scripts (if that exists)
+        - Nitro using the `nitro` statebag
+        - Purge level using the `nitroPurge` statebag
     - Headlights & Turn signals
 - Events to toggle hud / toggle cinematic mode
     - `qbx_hud:client:toggleCinematicMode`

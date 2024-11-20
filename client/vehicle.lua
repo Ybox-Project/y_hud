@@ -153,12 +153,18 @@ local function initVehicleHud()
 
     if cache.seat == -1 then
         local nitroLevel = Entity(cache.vehicle).state.nitro or 0
+        local purgeLevel = Entity(cache.vehicle).state.nitroPurge or 0
         data = {
             {
                 type = 'gauge',
                 name = 'nitro',
                 value = nitroLevel,
                 show = nitroLevel > 0
+            },
+            {
+                type = 'gauge',
+                name = 'purge',
+                value = purgeLevel,
             },
             {
                 type = 'gauge',
@@ -191,6 +197,20 @@ qbx.entityStateHandler('nitro', function(veh, _, value)
                 name = 'nitro',
                 value = value,
                 show = value > 0
+            }
+        }
+    })
+end)
+
+qbx.entityStateHandler('nitroPurge', function(veh, _, value)
+    if veh ~= cache.vehicle then return end
+    sendNUIMessage({
+        update = true,
+        data = {
+            {
+                type = 'gauge',
+                name = 'purge',
+                value = value,
             }
         }
     })
