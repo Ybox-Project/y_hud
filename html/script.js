@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         break;
                     case 'gauge':
                         if (dataItem.name === 'purge') {
-                            console.log(dataItem.value);
                             setGaugeProgress(dataItem.value, dataItem.name);
                         }
                         setGauge(dataItem.value, dataItem.name, dataItem.show);
